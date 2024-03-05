@@ -23,8 +23,37 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package argon2
 
-const (
-	algorithmName = "chacha20"
+import (
+	"golang.org/x/crypto/argon2"
+
+	"github.com/skjdfhkskjds/openpass/v2/crypto"
+	"github.com/skjdfhkskjds/openpass/v2/types/key"
 )
+
+// Compile time interface assertion.
+var _ crypto.KeyDerivationFunction = (*Algorithm)(nil)
+
+type Algorithm struct{}
+
+func New() *Algorithm {
+	return &Algorithm{}
+}
+
+// TODO: figure out good params system i dont really like how coupled
+// it feels
+func (a *Algorithm) DeriveKey(password string, params *key.Params) (*key.Key, error) {
+	idKey := argon2.IDKey(
+		[]byte(password),
+		params.Salt,
+		1,
+		memorySize,
+		4,
+		params.KeySize,
+	)
+
+	var hashedKey [key.Size]byte
+	copy(hashedKey[:], idKey)
+	return key.New(hashedKey, params), nil
+}

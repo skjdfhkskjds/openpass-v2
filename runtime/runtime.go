@@ -23,8 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package runtime
 
-const (
-	algorithmName = "chacha20"
-)
+// TODO: this file handles building the runtime for the application

@@ -23,8 +23,20 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+syntax = "proto3";
 
-const (
-	algorithmName = "chacha20"
-)
+option go_package = "github.com/skjdfhkskjds/proto";
+
+message PasswordEntry {
+    // The URL of the website
+    string url = 1;
+
+    // The username used to log in
+    string username = 2;
+
+    // The password is stored as a hash
+    string password = 3;
+
+    // Any additional parameters (used for decryption)
+    map<string, string> params = 4;
+}

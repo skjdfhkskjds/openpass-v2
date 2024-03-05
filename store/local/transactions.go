@@ -23,8 +23,30 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package local
 
-const (
-	algorithmName = "chacha20"
+import (
+	"github.com/dgraph-io/badger/v4"
 )
+
+func (s *Store) Get(key string) (string, error) {
+	if err := s.db.View(func(txn *badger.Txn) error {
+		// TODO: implement
+		return nil
+	}); err != nil {
+		return "", err
+	}
+
+	return "", nil
+}
+
+func (s *Store) Set(key, value string) error {
+	if err := s.db.Update(func(txn *badger.Txn) error {
+		// TODO: implement
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}

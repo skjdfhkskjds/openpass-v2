@@ -23,8 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package argon2
 
 const (
-	algorithmName = "chacha20"
+	memorySize = 64 * 1024 // 64 MBs
 )

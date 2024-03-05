@@ -23,8 +23,16 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package local
 
-const (
-	algorithmName = "chacha20"
+import (
+	badger "github.com/dgraph-io/badger/v4"
 )
+
+type Store struct {
+	db badger.DB
+}
+
+func NewStore() *Store {
+	return &Store{}
+}

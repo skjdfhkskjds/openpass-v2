@@ -23,8 +23,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package config
 
-const (
-	algorithmName = "chacha20"
-)
+type Config struct {
+	Username string
+	Password string // TODO: is there a better way to do this?
+
+	DBPath string
+}
