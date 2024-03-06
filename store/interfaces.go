@@ -25,8 +25,20 @@
 
 package store
 
+import "github.com/skjdfhkskjds/openpass/v2/proto/out/proto"
+
 // Store is an interface for getting and setting key-value pairs
 type Store interface {
-	Get(key string) (string, error)
-	Set(key string, value string) error
+	Open(address string) error
+	Close() error
+
+	// For user profile data
+	GetUserData(req *proto.GetUserDataRequest) (*proto.GetUserDataResponse, error)
+	SetUserData(req *proto.SetUserDataRequest) (*proto.SetUserDataResponse, error)
+
+	// For password data
+	GetPassword(req *proto.GetPasswordRequest) (*proto.GetPasswordResponse, error)
+	SetPassword(req *proto.SetPasswordRequest) (*proto.SetPasswordResponse, error)
+	UpdatePassword(req *proto.UpdatePasswordRequest) (*proto.UpdatePasswordResponse, error)
+	DeletePassword(req *proto.DeletePasswordRequest) (*proto.DeletePasswordResponse, error)
 }

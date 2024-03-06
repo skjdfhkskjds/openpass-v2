@@ -26,5 +26,7 @@
 package argon2
 
 const (
-	memorySize = 64 * 1024 // 64 MBs
+	defaultMemorySize = 64 * 1024 // 64 MBs
+	defaultTime       = 1
+	defaultThreads    = 4
 )

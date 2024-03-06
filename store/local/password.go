@@ -23,59 +23,26 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-syntax = "proto3";
+package localstore
 
-option go_package = "github.com/skjdfhkskjds/proto";
+import (
+	// "github.com/dgraph-io/badger/v4"
 
-// Request message to set a password.
-message SetPasswordRequest {
-    string username = 1;
-    string password = 2;
-    string url = 3;
-    string notes = 4;
+	"github.com/skjdfhkskjds/openpass/v2/proto/out/proto"
+)
+
+func (s *Store) GetPassword(req *proto.GetPasswordRequest) (*proto.GetPasswordResponse, error) {
+	return nil, nil
 }
 
-// Response message for setting a password.
-message SetPasswordResponse {
-    bool success = 1;
-    string message = 2;
+func (s *Store) SetPassword(req *proto.SetPasswordRequest) (*proto.SetPasswordResponse, error) {
+	return nil, nil
 }
 
-// Request message to retrieve a password.
-message GetPasswordRequest {
-    string username = 1;
-    string url = 2;
+func (s *Store) UpdatePassword(req *proto.UpdatePasswordRequest) (*proto.UpdatePasswordResponse, error) {
+	return nil, nil
 }
 
-// Response message for retrieving a password.
-message GetPasswordResponse {
-    string password = 1;
-    string notes = 2;
-    bool found = 3;
-}
-
-// Request message to update a password.
-message UpdatePasswordRequest {
-    string username = 1;
-    string url = 2;
-    string newPassword = 3;
-    string newNotes = 4;
-}
-
-// Response message for updating a password.
-message UpdatePasswordResponse {
-    bool success = 1;
-    string message = 2;
-}
-
-// Request message to delete a password.
-message DeletePasswordRequest {
-    string username = 1;
-    string url = 2;
-}
-
-// Response message for deleting a password.
-message DeletePasswordResponse {
-    bool success = 1;
-    string message = 2;
+func (s *Store) DeletePassword(req *proto.DeletePasswordRequest) (*proto.DeletePasswordResponse, error) {
+	return nil, nil
 }
