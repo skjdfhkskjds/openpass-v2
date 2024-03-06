@@ -23,7 +23,47 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package core
+package keychain
+
+import (
+	"github.com/skjdfhkskjds/openpass/v2/crypto"
+	"github.com/skjdfhkskjds/openpass/v2/types"
+	"github.com/skjdfhkskjds/openpass/v2/types/password"
+)
 
 // this file is responsible for handling all
 // keychain related operations
+
+type Keychain struct {
+	*types.User
+
+	keyFunc   crypto.KeyDerivationFunction
+	algorithm crypto.Algorithm
+}
+
+func New(
+	user *types.User,
+	kdf crypto.KeyDerivationFunction,
+	a crypto.Algorithm,
+) *Keychain {
+	return &Keychain{
+		User:      user,
+		keyFunc:   kdf,
+		algorithm: a,
+	}
+}
+
+func (k *Keychain) SetPassword(url, username, password string) (*password.Password, error) {
+	key, err := k.keyFunc.DeriveKey(k.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	k.algorithm.SetKey(key)
+	encrypted, err := k.algorithm.Encrypt(password)
+	if err != nil {
+		return nil, err
+	}
+
+	return encrypted, nil
+}

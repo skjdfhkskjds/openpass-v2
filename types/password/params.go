@@ -34,7 +34,7 @@ import (
 type Params struct {
 	Algorithm string
 
-	Key key.Key
+	Key *key.Key
 }
 
 type ParamsOption func(*Params)
@@ -60,5 +60,11 @@ func (p *Params) String() string {
 func WithAlgorithm(algorithm string) ParamsOption {
 	return func(p *Params) {
 		p.Algorithm = algorithm
+	}
+}
+
+func WithKey(k *key.Key) ParamsOption {
+	return func(p *Params) {
+		p.Key = k
 	}
 }

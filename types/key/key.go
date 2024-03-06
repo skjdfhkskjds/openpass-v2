@@ -25,6 +25,8 @@
 
 package key
 
+// Key is a encoding key used to encrypt and decrypt data.
+// It needs to be saved and stored to be able to decrypt data.
 type Key struct {
 	Hash [Size]byte
 

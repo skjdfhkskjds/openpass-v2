@@ -23,6 +23,47 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package core
+package generator
 
-// file responsible for generating a random password
+import (
+	"math/rand"
+	"time"
+)
+
+type Generator struct {
+	*Config
+}
+
+// New returns a new password generator with the given configuration
+func New(config *Config) *Generator {
+	return &Generator{config}
+}
+
+// NewDefault returns a new password generator with the default configuration
+func NewDefault() *Generator {
+	return New(DefaultConfig())
+}
+
+// Generate returns a randomly generated password based on the configuration
+func (g *Generator) Generate() string {
+	var chars string
+	chars += lowercaseLetters
+	if g.includeUppercase {
+		chars += uppercaseLetters
+	}
+	if g.includeSpecial {
+		chars += specialChars
+	}
+	if g.includeNumbers {
+		chars += numbers
+	}
+
+	// Seed the random number generator
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	password := make([]byte, g.length)
+	for i := 0; i < g.length; i++ {
+		password[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(password)
+}

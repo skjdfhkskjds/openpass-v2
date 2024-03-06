@@ -39,16 +39,20 @@ var _ crypto.Algorithm = (*Algorithm)(nil)
 // Algorithm is an implementation of the crypto.Algorithm interface
 // using the ChaCha20-Poly1305 AEAD cipher.
 type Algorithm struct {
-	key key.Key
+	key *key.Key
 
 	params *password.Params
 }
 
-func New(k key.Key) *Algorithm {
+func New(k *key.Key) *Algorithm {
 	return &Algorithm{
 		key:    k,
-		params: DefaultChaCha2Params(),
+		params: DefaultChaCha2ParamsWithKey(k),
 	}
+}
+
+func (a *Algorithm) SetKey(k *key.Key) {
+	a.key = k
 }
 
 func (a *Algorithm) Encrypt(plainText string) (*password.Password, error) {
@@ -58,11 +62,16 @@ func (a *Algorithm) Encrypt(plainText string) (*password.Password, error) {
 	}
 
 	nonce := make([]byte, aead.NonceSize())
-	encryptedHash := aead.Seal(nonce, nonce, []byte(plainText), nil)
+	encryptedHash := aead.Seal(nil, nonce, []byte(plainText), nil)
 
 	// TODO: fill password parameters
-	return password.New(encryptedHash, nonce,
-		password.Params{Key: a.key},
+	return password.New(
+		encryptedHash,
+		nonce,
+		password.NewParams(
+			password.WithAlgorithm(algorithmName),
+			password.WithKey(a.key),
+		),
 	), nil
 }
 

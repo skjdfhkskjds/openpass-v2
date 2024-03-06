@@ -25,10 +25,14 @@
 
 package chacha2
 
-import "github.com/skjdfhkskjds/openpass/v2/types/password"
+import (
+	"github.com/skjdfhkskjds/openpass/v2/types/key"
+	"github.com/skjdfhkskjds/openpass/v2/types/password"
+)
 
-func DefaultChaCha2Params() *password.Params {
+func DefaultChaCha2ParamsWithKey(k *key.Key) *password.Params {
 	return password.NewParams(
 		password.WithAlgorithm(algorithmName),
+		password.WithKey(k),
 	)
 }

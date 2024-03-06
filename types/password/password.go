@@ -31,10 +31,10 @@ type Password struct {
 	Hash  []byte
 	Nonce []byte
 
-	Params Params
+	Params *Params
 }
 
-func New(hash, nonce []byte, params Params) *Password {
+func New(hash, nonce []byte, params *Params) *Password {
 	return &Password{
 		Hash:   hash,
 		Nonce:  nonce,

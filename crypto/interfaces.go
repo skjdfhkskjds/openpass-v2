@@ -33,6 +33,8 @@ import (
 // Algorithm is an interface for encryption and decryption
 // of a password.
 type Algorithm interface {
+	SetKey(key *key.Key)
+
 	Encrypt(plainText string) (*password.Password, error)
 	Decrypt(password *password.Password) (string, error)
 }
@@ -42,5 +44,5 @@ type Algorithm interface {
 // This key is used as a standard length key for encryption
 // and decryption by the Algorithm interface.
 type KeyDerivationFunction interface {
-	DeriveKey(password string, params *key.Params) (*key.Key, error)
+	DeriveKey(password string) (*key.Key, error)
 }
