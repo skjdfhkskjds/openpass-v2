@@ -23,6 +23,17 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package runtime
+syntax = "proto3";
+package services.v1;
 
-// TODO: this file handles building the runtime for the application
+import "proto/types/v1/user.proto";
+
+option go_package = "github.com/skjdfhkskjds/proto";
+
+service UserDataService {
+  // GetPassword returns the user data for the given user data request.
+  rpc GetUserData(types.v1.GetUserDataRequest) returns (types.v1.GetUserDataResponse);
+
+  // SetPassword sets the user data for the given user data request.
+  rpc SetUserData(types.v1.SetUserDataRequest) returns (types.v1.SetUserDataResponse);
+}

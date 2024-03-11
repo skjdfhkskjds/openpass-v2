@@ -23,16 +23,28 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package local
+package localstore
 
 import (
-	badger "github.com/dgraph-io/badger/v4"
+	istore "github.com/skjdfhkskjds/openpass/v2/store"
+	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
 )
 
+var _ istore.Store = (*Store)(nil)
+
 type Store struct {
-	db badger.DB
+	db localdb.DB
 }
 
-func NewStore() *Store {
-	return &Store{}
+func New(path string) (*Store, error) {
+	db, err := localdb.New(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Store{db}, nil
+}
+
+func (s *Store) Close() error {
+	return s.db.Close()
 }

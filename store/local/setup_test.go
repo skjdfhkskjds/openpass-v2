@@ -23,20 +23,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-syntax = "proto3";
+package localstore
 
-option go_package = "github.com/skjdfhkskjds/proto";
+import (
+	"errors"
 
-message PasswordEntry {
-    // The URL of the website
-    string url = 1;
+	"github.com/skjdfhkskjds/openpass/v2/store/local/db/mocks"
+)
 
-    // The username used to log in
-    string username = 2;
+// Common Mock Setups
+var (
+	db    = mocks.DB{}
+	store = Store{db: &db}
+)
 
-    // The password is stored as a hash
-    string password = 3;
-
-    // Any additional parameters (used for decryption)
-    map<string, string> params = 4;
-}
+// Useful Errors
+var (
+	errForcedError = errors.New("forced error")
+)

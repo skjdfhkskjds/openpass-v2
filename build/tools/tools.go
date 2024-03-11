@@ -23,30 +23,20 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package local
+//go:build tools
+// +build tools
+
+// This is the canonical way to enforce dependency inclusion in go.mod for tools
+// that are not directly involved in the build process.
+// See
+// https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
+
+package tools
+
+//nolint
 
 import (
-	"github.com/dgraph-io/badger/v4"
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	_ "github.com/google/addlicense"
+	_ "google.golang.org/grpc"
 )
-
-func (s *Store) Get(key string) (string, error) {
-	if err := s.db.View(func(txn *badger.Txn) error {
-		// TODO: implement
-		return nil
-	}); err != nil {
-		return "", err
-	}
-
-	return "", nil
-}
-
-func (s *Store) Set(key, value string) error {
-	if err := s.db.Update(func(txn *badger.Txn) error {
-		// TODO: implement
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}

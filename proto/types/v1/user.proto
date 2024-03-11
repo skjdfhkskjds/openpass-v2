@@ -23,47 +23,43 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package keychain
+syntax = "proto3";
+package types.v1;
 
-import (
-	"github.com/skjdfhkskjds/openpass/v2/crypto"
-	"github.com/skjdfhkskjds/openpass/v2/types"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
-)
+option go_package = "github.com/skjdfhkskjds/proto";
 
-// this file is responsible for handling all
-// keychain related operations
+message UserData {
+  string username = 1;
 
-type Keychain struct {
-	*types.User
+  // Password hash is a hash of the user's password.
+  // This is used to authenticate the user.
+  string password_hash = 2;
 
-	keyFunc   crypto.KeyDerivationFunction
-	algorithm crypto.Algorithm
+  // Algorithm used to generate the password hash.
+  string algorithm = 3;
+
+  // Params stores relevant user metadata as well as
+  // key values required to decode the password hash
+  // for the given algorithm.
+  map<string, string> params = 4;
 }
 
-func New(
-	user *types.User,
-	kdf crypto.KeyDerivationFunction,
-	a crypto.Algorithm,
-) *Keychain {
-	return &Keychain{
-		User:      user,
-		keyFunc:   kdf,
-		algorithm: a,
-	}
+// GetUserDataRequest is a request to get user data
+message GetUserDataRequest {
+  string username = 1;
 }
 
-func (k *Keychain) SetPassword(url, username, plainText string) (*password.Password, error) {
-	key, err := k.keyFunc.DeriveKey(k.Password)
-	if err != nil {
-		return nil, err
-	}
+// GetUserDataResponse is a response to a GetUserDataRequest
+message GetUserDataResponse {
+  optional UserData user_data = 1;
+}
 
-	k.algorithm.SetKey(key)
-	encrypted, err := k.algorithm.Encrypt(plainText)
-	if err != nil {
-		return nil, err
-	}
+// SetUserDataRequest is a request to set user data
+message SetUserDataRequest {
+  UserData user_data = 1;
+}
 
-	return encrypted, nil
+// SetUserDataResponse is a response to a SetUserDataRequest
+message SetUserDataResponse {
+  optional UserData user_data = 1;
 }

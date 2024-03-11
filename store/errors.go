@@ -23,47 +23,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package keychain
+package store
 
-import (
-	"github.com/skjdfhkskjds/openpass/v2/crypto"
-	"github.com/skjdfhkskjds/openpass/v2/types"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+import "errors"
+
+var (
+	// ErrKeyAlreadyExists is returned when a key already exists in the db
+	// and the user tries to insert it again.
+	ErrKeyAlreadyExists = errors.New("key already exists")
+
+	// ErrKeyNotFound is returned when a key is not found in the db.
+	ErrKeyNotFound = errors.New("key not found")
 )
-
-// this file is responsible for handling all
-// keychain related operations
-
-type Keychain struct {
-	*types.User
-
-	keyFunc   crypto.KeyDerivationFunction
-	algorithm crypto.Algorithm
-}
-
-func New(
-	user *types.User,
-	kdf crypto.KeyDerivationFunction,
-	a crypto.Algorithm,
-) *Keychain {
-	return &Keychain{
-		User:      user,
-		keyFunc:   kdf,
-		algorithm: a,
-	}
-}
-
-func (k *Keychain) SetPassword(url, username, plainText string) (*password.Password, error) {
-	key, err := k.keyFunc.DeriveKey(k.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	k.algorithm.SetKey(key)
-	encrypted, err := k.algorithm.Encrypt(plainText)
-	if err != nil {
-		return nil, err
-	}
-
-	return encrypted, nil
-}

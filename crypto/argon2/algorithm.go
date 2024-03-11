@@ -51,9 +51,9 @@ func (a *Algorithm) DeriveKey(password string) (*key.Key, error) {
 	idKey := argon2.IDKey(
 		[]byte(password),
 		a.Salt,
-		1,
-		memorySize,
-		4,
+		defaultTime,
+		defaultMemorySize,
+		defaultThreads,
 		a.KeySize,
 	)
 

@@ -23,47 +23,28 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package keychain
+package localdb
 
-import (
-	"github.com/skjdfhkskjds/openpass/v2/crypto"
-	"github.com/skjdfhkskjds/openpass/v2/types"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+import "fmt"
+
+const (
+	// Prefix to access all users
+	UserKeyPrefix = "user"
+
+	// Prefix to access passwords
+	PasswordKeyPrefix = "password"
 )
 
-// this file is responsible for handling all
-// keychain related operations
-
-type Keychain struct {
-	*types.User
-
-	keyFunc   crypto.KeyDerivationFunction
-	algorithm crypto.Algorithm
+// BuildPasswordKeyPath builds a badger key for a password request.
+func BuildPasswordKeyPath(url, username string) []byte {
+	return []byte(
+		fmt.Sprintf("%s/%s/%s", PasswordKeyPrefix, url, username),
+	)
 }
 
-func New(
-	user *types.User,
-	kdf crypto.KeyDerivationFunction,
-	a crypto.Algorithm,
-) *Keychain {
-	return &Keychain{
-		User:      user,
-		keyFunc:   kdf,
-		algorithm: a,
-	}
-}
-
-func (k *Keychain) SetPassword(url, username, plainText string) (*password.Password, error) {
-	key, err := k.keyFunc.DeriveKey(k.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	k.algorithm.SetKey(key)
-	encrypted, err := k.algorithm.Encrypt(plainText)
-	if err != nil {
-		return nil, err
-	}
-
-	return encrypted, nil
+// BuildUserDataKeyPath builds a badger key for a user data request.
+func BuildUserDataKeyPath(username string) []byte {
+	return []byte(
+		fmt.Sprintf("%s/%s", UserKeyPrefix, username),
+	)
 }
