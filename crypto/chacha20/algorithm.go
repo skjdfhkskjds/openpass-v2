@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package chacha20
 
 import (
 	"golang.org/x/crypto/chacha20poly1305"
