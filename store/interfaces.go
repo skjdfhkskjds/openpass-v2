@@ -25,11 +25,12 @@
 
 package store
 
-import "github.com/skjdfhkskjds/openpass/v2/proto/out/proto"
+import (
+	proto "github.com/skjdfhkskjds/openpass/v2/types/proto/types/v1"
+)
 
 // Store is an interface for getting and setting key-value pairs
 type Store interface {
-	Open(address string) error
 	Close() error
 
 	// For user profile data

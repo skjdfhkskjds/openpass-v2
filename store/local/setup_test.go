@@ -23,6 +23,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package app
+package localstore
 
-// TODO: this file handles the access points to the application
+import (
+	"errors"
+
+	"github.com/skjdfhkskjds/openpass/v2/store/local/db/mocks"
+)
+
+// Common Mock Setups
+var (
+	db    = mocks.DB{}
+	store = Store{db: &db}
+)
+
+// Useful Errors
+var (
+	errForcedError = errors.New("forced error")
+)

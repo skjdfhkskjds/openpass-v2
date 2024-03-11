@@ -20,10 +20,13 @@ clean:
 ###                                 Testing                                 ###
 ###############################################################################
 
+COVER_FILE := cover.out # TODO: find nice visualizer for this later
+INCLUDE_PKGS := $(shell go list ./... | grep -v '/proto/')
+
 test-unit:
 	@$(MAKE)
 	@echo "Running unit tests..."
-	go test ./...
+	go test -coverprofile $(COVER_FILE) $(INCLUDE_PKGS)
 
 
 ###############################################################################
@@ -101,7 +104,20 @@ gosec:
 ###############################################################################
 
 generate:
-	@$(MAKE) proto
+	@$(MAKE) proto mockery
+
+#################
+#    mockery    #
+#################
+
+mockery-install:
+	@echo "--> Installing mockery"
+	@go install github.com/vektra/mockery/v2@v2.42.0
+
+mockery:
+	@$(MAKE) mockery-install
+	@echo "Running mockery..."
+	@mockery
 
 #################
 #     proto     #
@@ -112,13 +128,25 @@ modulesProtoDir := "proto"
 proto:
 	@$(MAKE) buf-lint-fix buf-lint proto-build
 
+proto-install:
+	@echo "--> Installing protoc"
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
 proto-build:
 	@echo "--> Generating proto files"
-	@protoc --go_out=$(modulesProtoDir)/out --go_opt=paths=source_relative ./$(modulesProtoDir)/*.proto
+	@ ./build/scripts/proto_generate.sh
+
+# ./$(modulesProtoDir)/types/*.proto \
 
 proto-clean:
 	@find . -name '*.pb.go' -delete
 	@find . -name '*.pb.gw.go' -delete
+
+buf-install:
+	@echo "--> Installing buf"
+	@go install github.com/bufbuild/buf/cmd/buf
+
 
 buf-lint-fix:
 	@$(MAKE) buf-install 

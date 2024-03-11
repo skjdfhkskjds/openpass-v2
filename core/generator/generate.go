@@ -59,11 +59,11 @@ func (g *Generator) Generate() string {
 	}
 
 	// Seed the random number generator
-	rand.New(rand.NewSource(time.Now().UnixNano()))
+	rand.New(rand.NewSource(time.Now().UnixNano())) //nolint: gosec // eh, it's a password generator
 
 	password := make([]byte, g.length)
 	for i := 0; i < g.length; i++ {
-		password[i] = chars[rand.Intn(len(chars))]
+		password[i] = chars[rand.Intn(len(chars))] //nolint: gosec // eh, it's a password generator
 	}
 	return string(password)
 }

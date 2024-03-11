@@ -23,47 +23,36 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package keychain
+package localdb
 
 import (
-	"github.com/skjdfhkskjds/openpass/v2/crypto"
-	"github.com/skjdfhkskjds/openpass/v2/types"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	badger "github.com/dgraph-io/badger/v4"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// this file is responsible for handling all
-// keychain related operations
-
-type Keychain struct {
-	*types.User
-
-	keyFunc   crypto.KeyDerivationFunction
-	algorithm crypto.Algorithm
+//go:generate mockery --name DB
+type DB interface {
+	Read(key []byte) ([]byte, error)
+	Write(key []byte, message protoreflect.ProtoMessage) error
+	Delete(key []byte) error
+	Update(key []byte, message protoreflect.ProtoMessage) error
+	Close() error
 }
 
-func New(
-	user *types.User,
-	kdf crypto.KeyDerivationFunction,
-	a crypto.Algorithm,
-) *Keychain {
-	return &Keychain{
-		User:      user,
-		keyFunc:   kdf,
-		algorithm: a,
-	}
+var _ DB = (*LocalDB)(nil)
+
+type LocalDB struct {
+	badgerDB *badger.DB
 }
 
-func (k *Keychain) SetPassword(url, username, plainText string) (*password.Password, error) {
-	key, err := k.keyFunc.DeriveKey(k.Password)
+func New(path string) (*LocalDB, error) {
+	db, err := badger.Open(badger.DefaultOptions(path))
 	if err != nil {
 		return nil, err
 	}
+	return &LocalDB{db}, nil
+}
 
-	k.algorithm.SetKey(key)
-	encrypted, err := k.algorithm.Encrypt(plainText)
-	if err != nil {
-		return nil, err
-	}
-
-	return encrypted, nil
+func (db *LocalDB) Close() error {
+	return db.badgerDB.Close()
 }

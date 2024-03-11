@@ -24,43 +24,16 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 syntax = "proto3";
+package services.v1;
+
+import "proto/types/v1/user.proto";
 
 option go_package = "github.com/skjdfhkskjds/proto";
 
-message UserData {
-    string username = 1;
+service UserDataService {
+  // GetPassword returns the user data for the given user data request.
+  rpc GetUserData(types.v1.GetUserDataRequest) returns (types.v1.GetUserDataResponse);
 
-    // Password hash is a hash of the user's password.
-    // This is used to authenticate the user.
-    string passwordHash = 2;
-
-    // Algorithm used to generate the password hash.
-    string algorithm = 3;
-
-    // Params stores relevant user metadata as well as
-    // key values required to decode the password hash
-    // for the given algorithm.
-    map<string, string> params = 4;
-}
-
-// GetUserDataRequest is a request to get user data
-message GetUserDataRequest {
-    string username = 1;
-}
-
-// GetUserDataResponse is a response to a GetUserDataRequest
-message GetUserDataResponse {
-    bool status = 1;
-    optional UserData userData = 2;
-}
-
-// SetUserDataRequest is a request to set user data
-message SetUserDataRequest {
-    UserData userData = 1;
-}
-
-// SetUserDataResponse is a response to a SetUserDataRequest
-message SetUserDataResponse {
-    bool status = 1;
-    optional UserData userData = 2;
+  // SetPassword sets the user data for the given user data request.
+  rpc SetUserData(types.v1.SetUserDataRequest) returns (types.v1.SetUserDataResponse);
 }

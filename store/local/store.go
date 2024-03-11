@@ -26,29 +26,23 @@
 package localstore
 
 import (
-	badger "github.com/dgraph-io/badger/v4"
-	"github.com/skjdfhkskjds/openpass/v2/store"
+	istore "github.com/skjdfhkskjds/openpass/v2/store"
+	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
 )
 
-var _ store.Store = (*Store)(nil)
+var _ istore.Store = (*Store)(nil)
 
 type Store struct {
-	db *badger.DB
+	db localdb.DB
 }
 
-func New() *Store {
-	return &Store{}
-}
-
-// Address in the context of a local store is the path to
-// the directory where the database is stored.
-func (s *Store) Open(address string) error {
-	db, err := badger.Open(badger.DefaultOptions(address))
+func New(path string) (*Store, error) {
+	db, err := localdb.New(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	s.db = db
-	return nil
+
+	return &Store{db}, nil
 }
 
 func (s *Store) Close() error {

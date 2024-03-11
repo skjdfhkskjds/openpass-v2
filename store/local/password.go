@@ -26,23 +26,76 @@
 package localstore
 
 import (
-	// "github.com/dgraph-io/badger/v4"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/skjdfhkskjds/openpass/v2/proto/out/proto"
+	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
+	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/types/v1"
 )
 
-func (s *Store) GetPassword(req *proto.GetPasswordRequest) (*proto.GetPasswordResponse, error) {
-	return nil, nil
+func (s *Store) GetPassword(
+	req *prototypes.GetPasswordRequest,
+) (*prototypes.GetPasswordResponse, error) {
+	bz, err := s.db.Read(
+		localdb.BuildPasswordKeyPath(req.GetUrl(), req.GetUsername()),
+	)
+	if err != nil {
+		return &prototypes.GetPasswordResponse{}, err
+	}
+
+	// Unmarshal the returned bytes into a password entry
+	password := &prototypes.PasswordEntry{}
+	if err := proto.Unmarshal(bz, password); err != nil {
+		return nil, err
+	}
+
+	// Build the response
+	return &prototypes.GetPasswordResponse{
+		Password: password,
+	}, nil
 }
 
-func (s *Store) SetPassword(req *proto.SetPasswordRequest) (*proto.SetPasswordResponse, error) {
-	return nil, nil
+func (s *Store) SetPassword(
+	req *prototypes.SetPasswordRequest,
+) (*prototypes.SetPasswordResponse, error) {
+	if err := s.db.Write(
+		localdb.BuildPasswordKeyPath(
+			req.Password.GetUrl(),
+			req.Password.GetUsername(),
+		),
+		req.Password,
+	); err != nil {
+		return &prototypes.SetPasswordResponse{}, err
+	}
+	return &prototypes.SetPasswordResponse{
+		Password: req.Password,
+	}, nil
 }
 
-func (s *Store) UpdatePassword(req *proto.UpdatePasswordRequest) (*proto.UpdatePasswordResponse, error) {
-	return nil, nil
+func (s *Store) UpdatePassword(
+	req *prototypes.UpdatePasswordRequest,
+) (*prototypes.UpdatePasswordResponse, error) {
+	if err := s.db.Update(
+		localdb.BuildPasswordKeyPath(
+			req.Password.GetUrl(),
+			req.Password.GetUsername(),
+		),
+		req.Password,
+	); err != nil {
+		return &prototypes.UpdatePasswordResponse{}, err
+	}
+	return &prototypes.UpdatePasswordResponse{
+		Password: req.Password,
+	}, nil
 }
 
-func (s *Store) DeletePassword(req *proto.DeletePasswordRequest) (*proto.DeletePasswordResponse, error) {
-	return nil, nil
+func (s *Store) DeletePassword(
+	req *prototypes.DeletePasswordRequest,
+) (*prototypes.DeletePasswordResponse, error) {
+	return &prototypes.DeletePasswordResponse{},
+		s.db.Delete(
+			localdb.BuildPasswordKeyPath(
+				req.GetUrl(),
+				req.GetUsername(),
+			),
+		)
 }
