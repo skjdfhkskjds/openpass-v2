@@ -20,7 +20,7 @@ clean:
 ###                                 Testing                                 ###
 ###############################################################################
 
-COVER_FILE := cover.out # TODO: find nice visualizer for this later
+COVER_FILE := coverage.out # TODO: find nice visualizer for this later
 INCLUDE_PKGS := $(shell go list ./... | grep -v '/proto/')
 
 test-unit:

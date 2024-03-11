@@ -23,16 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package chacha2
+package chacha20
 
-import (
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+const (
+	algorithmName = "chacha20"
 )
-
-func DefaultChaCha2ParamsWithKey(k *key.Key) *password.Params {
-	return password.NewParams(
-		password.WithAlgorithm(algorithmName),
-		password.WithKey(k),
-	)
-}
