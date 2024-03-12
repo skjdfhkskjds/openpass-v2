@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.25.3
-// source: proto/services/v1/password.proto
+// source: proto/v1/password.proto
 
 package proto
 
@@ -42,7 +42,7 @@ func NewPasswordServiceClient(cc grpc.ClientConnInterface) PasswordServiceClient
 
 func (c *passwordServiceClient) GetPassword(ctx context.Context, in *GetPasswordRequest, opts ...grpc.CallOption) (*GetPasswordResponse, error) {
 	out := new(GetPasswordResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.PasswordService/GetPassword", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.PasswordService/GetPassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *passwordServiceClient) GetPassword(ctx context.Context, in *GetPassword
 
 func (c *passwordServiceClient) SetPassword(ctx context.Context, in *SetPasswordRequest, opts ...grpc.CallOption) (*SetPasswordResponse, error) {
 	out := new(SetPasswordResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.PasswordService/SetPassword", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.PasswordService/SetPassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (c *passwordServiceClient) SetPassword(ctx context.Context, in *SetPassword
 
 func (c *passwordServiceClient) DeletePassword(ctx context.Context, in *DeletePasswordRequest, opts ...grpc.CallOption) (*DeletePasswordResponse, error) {
 	out := new(DeletePasswordResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.PasswordService/DeletePassword", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.PasswordService/DeletePassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *passwordServiceClient) DeletePassword(ctx context.Context, in *DeletePa
 
 func (c *passwordServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error) {
 	out := new(UpdatePasswordResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.PasswordService/UpdatePassword", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.PasswordService/UpdatePassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func _PasswordService_GetPassword_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.PasswordService/GetPassword",
+		FullMethod: "/v1.PasswordService/GetPassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PasswordServiceServer).GetPassword(ctx, req.(*GetPasswordRequest))
@@ -148,7 +148,7 @@ func _PasswordService_SetPassword_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.PasswordService/SetPassword",
+		FullMethod: "/v1.PasswordService/SetPassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PasswordServiceServer).SetPassword(ctx, req.(*SetPasswordRequest))
@@ -166,7 +166,7 @@ func _PasswordService_DeletePassword_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.PasswordService/DeletePassword",
+		FullMethod: "/v1.PasswordService/DeletePassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PasswordServiceServer).DeletePassword(ctx, req.(*DeletePasswordRequest))
@@ -184,7 +184,7 @@ func _PasswordService_UpdatePassword_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.PasswordService/UpdatePassword",
+		FullMethod: "/v1.PasswordService/UpdatePassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PasswordServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
@@ -196,7 +196,7 @@ func _PasswordService_UpdatePassword_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PasswordService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "services.v1.PasswordService",
+	ServiceName: "v1.PasswordService",
 	HandlerType: (*PasswordServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -217,5 +217,5 @@ var PasswordService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/services/v1/password.proto",
+	Metadata: "proto/v1/password.proto",
 }

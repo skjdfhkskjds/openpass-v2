@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.25.3
-// source: proto/services/v1/user.proto
+// source: proto/v1/user.proto
 
 package proto
 
@@ -38,7 +38,7 @@ func NewUserDataServiceClient(cc grpc.ClientConnInterface) UserDataServiceClient
 
 func (c *userDataServiceClient) GetUserData(ctx context.Context, in *GetUserDataRequest, opts ...grpc.CallOption) (*GetUserDataResponse, error) {
 	out := new(GetUserDataResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.UserDataService/GetUserData", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.UserDataService/GetUserData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *userDataServiceClient) GetUserData(ctx context.Context, in *GetUserData
 
 func (c *userDataServiceClient) SetUserData(ctx context.Context, in *SetUserDataRequest, opts ...grpc.CallOption) (*SetUserDataResponse, error) {
 	out := new(SetUserDataResponse)
-	err := c.cc.Invoke(ctx, "/services.v1.UserDataService/SetUserData", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/v1.UserDataService/SetUserData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func _UserDataService_GetUserData_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.UserDataService/GetUserData",
+		FullMethod: "/v1.UserDataService/GetUserData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserDataServiceServer).GetUserData(ctx, req.(*GetUserDataRequest))
@@ -116,7 +116,7 @@ func _UserDataService_SetUserData_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.v1.UserDataService/SetUserData",
+		FullMethod: "/v1.UserDataService/SetUserData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserDataServiceServer).SetUserData(ctx, req.(*SetUserDataRequest))
@@ -128,7 +128,7 @@ func _UserDataService_SetUserData_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserDataService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "services.v1.UserDataService",
+	ServiceName: "v1.UserDataService",
 	HandlerType: (*UserDataServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -141,5 +141,5 @@ var UserDataService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/services/v1/user.proto",
+	Metadata: "proto/v1/user.proto",
 }
