@@ -24,7 +24,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-
 # Define the source and destination directories
 SRC_DIR="proto"
 DEST_DIR="types"
@@ -43,10 +42,10 @@ for element in "${array[@]}"
 do
        echo "Generating code for $element"
        protoc --go_out=$DEST_DIR --go_opt=paths=source_relative \
-              "$SRC_DIR/types/v1/$element.proto" 
+              "$SRC_DIR/v1/$element.proto" 
        
        protoc --go-grpc_out=$DEST_DIR --go-grpc_opt=paths=source_relative \
-              "$SRC_DIR/services/v1/$element.proto"
+              "$SRC_DIR/v1/$element.proto"
 done
 
 echo "Proto files have been processed and output files are in '$DEST_DIR'"
