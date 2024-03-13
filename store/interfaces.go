@@ -26,7 +26,7 @@
 package store
 
 import (
-	proto "github.com/skjdfhkskjds/openpass/v2/types/proto/types/v1"
+	proto "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
 )
 
 // Store is an interface for getting and setting key-value pairs
