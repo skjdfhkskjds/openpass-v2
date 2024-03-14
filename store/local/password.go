@@ -29,7 +29,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/types/v1"
+	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
 )
 
 func (s *Store) GetPassword(

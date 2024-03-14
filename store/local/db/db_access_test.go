@@ -39,7 +39,7 @@ import (
 
 	"github.com/skjdfhkskjds/openpass/v2/store"
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/types/v1"
+	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
 )
 
 type test struct {
