@@ -26,76 +26,45 @@
 package localstore
 
 import (
-	"google.golang.org/protobuf/proto"
-
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
+	"github.com/skjdfhkskjds/openpass/v2/types/password"
 )
 
-func (s *Store) GetPassword(
-	req *prototypes.GetPasswordRequest,
-) (*prototypes.GetPasswordResponse, error) {
+func (s *Store) GetPassword(url, username string) (*password.Password, error) {
 	bz, err := s.db.Read(
-		localdb.BuildPasswordKeyPath(req.GetUrl(), req.GetUsername()),
+		localdb.BuildPasswordKeyPath(url, username),
 	)
 	if err != nil {
-		return &prototypes.GetPasswordResponse{}, err
-	}
-
-	// Unmarshal the returned bytes into a password entry
-	password := &prototypes.PasswordEntry{}
-	if err := proto.Unmarshal(bz, password); err != nil {
 		return nil, err
 	}
 
-	// Build the response
-	return &prototypes.GetPasswordResponse{
-		Password: password,
-	}, nil
+	return password.NewFromBytes(bz)
 }
 
-func (s *Store) SetPassword(
-	req *prototypes.SetPasswordRequest,
-) (*prototypes.SetPasswordResponse, error) {
-	if err := s.db.Write(
-		localdb.BuildPasswordKeyPath(
-			req.Password.GetUrl(),
-			req.Password.GetUsername(),
-		),
-		req.Password,
-	); err != nil {
-		return &prototypes.SetPasswordResponse{}, err
+func (s *Store) SetPassword(pswd *password.Password) error {
+	pswdBz, err := pswd.Bytes()
+	if err != nil {
+		return err
 	}
-	return &prototypes.SetPasswordResponse{
-		Password: req.Password,
-	}, nil
+
+	return s.db.Write(
+		localdb.BuildPasswordKeyPath(pswd.Url, pswd.Username),
+		pswdBz,
+	)
 }
 
-func (s *Store) UpdatePassword(
-	req *prototypes.UpdatePasswordRequest,
-) (*prototypes.UpdatePasswordResponse, error) {
-	if err := s.db.Update(
-		localdb.BuildPasswordKeyPath(
-			req.Password.GetUrl(),
-			req.Password.GetUsername(),
-		),
-		req.Password,
-	); err != nil {
-		return &prototypes.UpdatePasswordResponse{}, err
+// UpdatePassword updates the password for the given url and username.
+// It performs a delete operation followed by a set operation.
+func (s *Store) UpdatePassword(oldUrl, oldUsername string, pswd *password.Password) error {
+	if err := s.DeletePassword(oldUrl, oldUsername); err != nil {
+		return err
 	}
-	return &prototypes.UpdatePasswordResponse{
-		Password: req.Password,
-	}, nil
+
+	return s.SetPassword(pswd)
 }
 
-func (s *Store) DeletePassword(
-	req *prototypes.DeletePasswordRequest,
-) (*prototypes.DeletePasswordResponse, error) {
-	return &prototypes.DeletePasswordResponse{},
-		s.db.Delete(
-			localdb.BuildPasswordKeyPath(
-				req.GetUrl(),
-				req.GetUsername(),
-			),
-		)
+func (s *Store) DeletePassword(url, username string) error {
+	return s.db.Delete(
+		localdb.BuildPasswordKeyPath(url, username),
+	)
 }

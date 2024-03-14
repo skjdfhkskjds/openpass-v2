@@ -26,7 +26,8 @@
 package store
 
 import (
-	proto "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
+	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	"github.com/skjdfhkskjds/openpass/v2/types/user"
 )
 
 // Store is an interface for getting and setting key-value pairs
@@ -34,12 +35,12 @@ type Store interface {
 	Close() error
 
 	// For user profile data
-	GetUserData(req *proto.GetUserDataRequest) (*proto.GetUserDataResponse, error)
-	SetUserData(req *proto.SetUserDataRequest) (*proto.SetUserDataResponse, error)
+	GetUserData(username string) (*user.Data, error)
+	SetUserData(data *user.Data) error
 
 	// For password data
-	GetPassword(req *proto.GetPasswordRequest) (*proto.GetPasswordResponse, error)
-	SetPassword(req *proto.SetPasswordRequest) (*proto.SetPasswordResponse, error)
-	UpdatePassword(req *proto.UpdatePasswordRequest) (*proto.UpdatePasswordResponse, error)
-	DeletePassword(req *proto.DeletePasswordRequest) (*proto.DeletePasswordResponse, error)
+	GetPassword(url, username string) (*password.Password, error)
+	SetPassword(pswd *password.Password) error
+	UpdatePassword(oldUrl, oldUsername string, pswd *password.Password) error
+	DeletePassword(url, username string) error
 }

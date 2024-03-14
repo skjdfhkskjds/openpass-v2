@@ -26,94 +26,60 @@
 package localstore
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"google.golang.org/protobuf/proto"
+	"github.com/stretchr/testify/require"
 
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
+	"github.com/skjdfhkskjds/openpass/v2/types/user"
 )
 
 var (
-	testUserData = &prototypes.UserData{
+	testUserData = &user.Data{
 		Username: "test",
 	}
 
-	invalidUserData = &prototypes.UserData{
+	invalidUserData = &user.Data{
 		Username: "",
 	}
 
-	testUserDataBz, _ = proto.Marshal(testUserData)
+	testUserDataBz    = testUserData.BytesUnsafe()
+	invalidUserDataBz = invalidUserData.BytesUnsafe()
 )
 
 var (
-	validUserKeyPath   = localdb.BuildUserDataKeyPath(testUserData.GetUsername())
-	invalidUserKeyPath = localdb.BuildUserDataKeyPath(invalidUserData.GetUsername())
+	validUserKeyPath   = localdb.BuildUserDataKeyPath(testUserData.Username)
+	invalidUserKeyPath = localdb.BuildUserDataKeyPath(invalidUserData.Username)
 )
 
 func TestGetUserData(t *testing.T) {
 	t.Run("Valid User", func(t *testing.T) {
-		db.On("Read", mock.MatchedBy(func(key []byte) bool {
-			return bytes.Equal(key, validUserKeyPath)
-		})).Return(testUserDataBz, nil)
-
-		res, err := store.GetUserData(&prototypes.GetUserDataRequest{
-			Username: testUserData.GetUsername(),
-		})
+		db.On("Read", validUserKeyPath).Return(testUserDataBz, nil)
+		data, err := store.GetUserData(testUserData.Username)
 		if ok := assert.NoError(t, err); !ok {
 			t.FailNow()
 		}
 
-		if ok := assert.True(t, proto.Equal(testUserData, res.GetUserData())); !ok {
-			t.Fatalf("expected: %v, got: %v", testUserData, res.GetUserData())
-		}
+		require.Equal(t, testUserData, data)
 	})
 
 	t.Run("Invalid User", func(t *testing.T) {
-		db.On("Read", mock.MatchedBy(func(key []byte) bool {
-			return bytes.Equal(key, invalidUserKeyPath)
-		})).Return(nil, errForcedError)
+		db.On("Read", invalidUserKeyPath).Return(nil, errForcedError)
 
-		_, err := store.GetUserData(&prototypes.GetUserDataRequest{
-			Username: invalidUserData.GetUsername(),
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		_, err := store.GetUserData(invalidUserData.Username)
+		require.ErrorIs(t, err, errForcedError)
 	})
 }
 
 func TestSetUserData(t *testing.T) {
 	t.Run("Valid User", func(t *testing.T) {
-		db.On("Write", mock.MatchedBy(func(key []byte) bool {
-			return bytes.Equal(key, validUserKeyPath)
-		}), testUserData).Return(nil)
-
-		res, err := store.SetUserData(&prototypes.SetUserDataRequest{
-			UserData: testUserData,
-		})
-		if ok := assert.NoError(t, err); !ok {
-			t.FailNow()
-		}
-
-		if ok := assert.True(t, proto.Equal(testUserData, res.GetUserData())); !ok {
-			t.Fatalf("expected: %v, got: %v", testUserData, res.GetUserData())
-		}
+		db.On("Write", validUserKeyPath, testUserDataBz).Return(nil)
+		require.NoError(t, store.SetUserData(testUserData))
 	})
 
 	t.Run("Invalid User", func(t *testing.T) {
-		db.On("Write", mock.MatchedBy(func(key []byte) bool {
-			return bytes.Equal(key, invalidUserKeyPath)
-		}), invalidUserData).Return(errForcedError)
-
-		_, err := store.SetUserData(&prototypes.SetUserDataRequest{
-			UserData: invalidUserData,
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		db.On("Write", invalidUserKeyPath, invalidUserDataBz).Return(errForcedError)
+		require.ErrorIs(t, store.SetUserData(invalidUserData), errForcedError)
 	})
 }

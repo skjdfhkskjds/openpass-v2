@@ -23,18 +23,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package password
+package keyparams
 
 import (
 	"fmt"
 
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
+	"github.com/skjdfhkskjds/openpass/v2/types/salt"
 )
 
+// Params is a struct that holds the parameters for the
+// key derivation function
 type Params struct {
 	Algorithm string
 
-	Key *key.Key
+	Salt    salt.Salt
+	KeySize uint32
 }
 
 type ParamsOption func(*Params)
@@ -53,8 +56,9 @@ func DefaultParams() *Params {
 	return &Params{}
 }
 
+// TODO: i hate fmt
 func (p *Params) String() string {
-	return fmt.Sprintf("Algorithm: %s", p.Algorithm)
+	return fmt.Sprintf("Algorithm: %s, Salt: %s", p.Algorithm, p.Salt)
 }
 
 func WithAlgorithm(algorithm string) ParamsOption {
@@ -63,8 +67,14 @@ func WithAlgorithm(algorithm string) ParamsOption {
 	}
 }
 
-func WithKey(k *key.Key) ParamsOption {
+func WithSalt(s salt.Salt) ParamsOption {
 	return func(p *Params) {
-		p.Key = k
+		p.Salt = s
+	}
+}
+
+func WithKeySize(keySize uint32) ParamsOption {
+	return func(p *Params) {
+		p.KeySize = keySize
 	}
 }

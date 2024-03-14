@@ -26,172 +26,117 @@
 package localstore
 
 import (
-	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
+	"github.com/stretchr/testify/require"
 
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
+	"github.com/skjdfhkskjds/openpass/v2/types/password"
 )
 
 var (
-	testPassword = &prototypes.PasswordEntry{
+	testPassword = &password.Password{
 		Url:      "url",
 		Username: "username",
 	}
 
-	invalidPassword = &prototypes.PasswordEntry{
+	testPassword2 = &password.Password{
+		Url:      "url2",
+		Username: "username2",
+	}
+
+	invalidPassword = &password.Password{
 		Url:      "",
 		Username: "",
 	}
 
-	testPasswordBz, _ = proto.Marshal(testPassword)
+	testPasswordBz    = testPassword.BytesUnsafe()
+	testPassword2Bz   = testPassword2.BytesUnsafe()
+	invalidPasswordBz = invalidPassword.BytesUnsafe()
 )
 
 var (
 	validPath = localdb.BuildPasswordKeyPath(
-		testPassword.GetUrl(),
-		testPassword.GetUsername(),
+		testPassword.Url,
+		testPassword.Username,
+	)
+	validPath2 = localdb.BuildPasswordKeyPath(
+		testPassword2.Url,
+		testPassword2.Username,
 	)
 	invalidPath = localdb.BuildPasswordKeyPath(
-		invalidPassword.GetUrl(),
-		invalidPassword.GetUsername(),
+		invalidPassword.Url,
+		invalidPassword.Username,
 	)
 )
 
 func TestGetPassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
-		db.On("Read", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, validPath)
-		})).Return(testPasswordBz, nil)
+		db.On("Read", validPath).Return(testPasswordBz, nil)
 
-		res, err := store.GetPassword(&prototypes.GetPasswordRequest{
-			Url:      testPassword.GetUrl(),
-			Username: testPassword.GetUsername(),
-		})
-		if ok := assert.NoError(t, err); !ok {
-			t.Fatal(err)
-		}
-
-		if ok := assert.True(t, proto.Equal(testPassword, res.GetPassword())); !ok {
-			t.Fatalf("expected: %v, got: %v", testPassword, res.GetPassword())
-		}
+		pswd, err := store.GetPassword(testPassword.Url, testPassword.Username)
+		require.NoError(t, err)
+		require.Equal(t, testPassword, pswd)
 	})
 
 	t.Run("Invalid call", func(t *testing.T) {
-		db.On("Read", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, invalidPath)
-		})).Return(nil, errForcedError)
+		db.On("Read", invalidPath).Return(nil, errForcedError)
 
-		_, err := store.GetPassword(&prototypes.GetPasswordRequest{
-			Url:      "",
-			Username: "",
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		_, err := store.GetPassword(invalidPassword.Url, invalidPassword.Username)
+		require.ErrorIs(t, err, errForcedError)
 	})
 }
 
 func TestSetPassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
-		db.On("Write", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, validPath)
-		}), mock.MatchedBy(func(msg protoreflect.ProtoMessage) bool {
-			return proto.Equal(msg, testPassword)
-		})).Return(nil)
-
-		res, err := store.SetPassword(&prototypes.SetPasswordRequest{Password: testPassword})
-		if ok := assert.NoError(t, err); !ok {
-			t.Fatal(err)
-		}
-
-		if ok := assert.True(t, proto.Equal(testPassword, res.GetPassword())); !ok {
-			t.Fatalf("expected: %v, got: %v", testPassword, res.GetPassword())
-		}
+		db.On("Write", validPath, testPasswordBz).Return(nil)
+		require.NoError(t, store.SetPassword(testPassword))
 	})
 
-	// Invalid Call
 	t.Run("Invalid call", func(t *testing.T) {
-		db.On("Write", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, invalidPath)
-		}), mock.MatchedBy(func(msg protoreflect.ProtoMessage) bool {
-			return proto.Equal(msg, invalidPassword)
-		})).Return(errForcedError)
-
-		_, err := store.SetPassword(&prototypes.SetPasswordRequest{
-			Password: invalidPassword,
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		db.On("Write", invalidPath, invalidPasswordBz).Return(errForcedError)
+		require.ErrorIs(t, store.SetPassword(invalidPassword), errForcedError)
 	})
 }
 
 func TestUpdatePassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
-		db.On("Update", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, validPath)
-		}), mock.MatchedBy(func(msg protoreflect.ProtoMessage) bool {
-			return proto.Equal(msg, testPassword)
-		})).Return(nil)
+		db.On("Delete", validPath).Return(nil)
+		db.On("Write", validPath2, testPassword2Bz).Return(nil)
 
-		res, err := store.UpdatePassword(&prototypes.UpdatePasswordRequest{Password: testPassword})
-		if ok := assert.NoError(t, err); !ok {
-			t.Fatal(err)
-		}
-
-		if ok := assert.True(t, proto.Equal(testPassword, res.GetPassword())); !ok {
-			t.Fatalf("expected: %v, got: %v", testPassword, res.GetPassword())
-		}
+		require.NoError(t,
+			store.UpdatePassword(testPassword.Url, testPassword.Username, testPassword2),
+		)
 	})
 
 	t.Run("Invalid call", func(t *testing.T) {
-		db.On("Update", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, invalidPath)
-		}), mock.MatchedBy(func(msg protoreflect.ProtoMessage) bool {
-			return proto.Equal(msg, invalidPassword)
-		})).Return(errForcedError)
+		db.On("Delete", validPath).Return(nil)
+		db.On("Delete", invalidPath).Return(errForcedError)
 
-		_, err := store.UpdatePassword(&prototypes.UpdatePasswordRequest{
-			Password: invalidPassword,
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		db.On("Write", validPath2, testPassword2Bz).Return(nil)
+		db.On("Write", invalidPath, invalidPasswordBz).Return(errForcedError)
+
+		// Test with invalid old password
+		err := store.UpdatePassword(invalidPassword.Url, invalidPassword.Username, testPassword2)
+		require.ErrorIs(t, err, errForcedError)
+
+		// Test with invalid updated password
+		err = store.UpdatePassword(testPassword.Url, testPassword.Username, invalidPassword)
+		require.ErrorIs(t, err, errForcedError)
 	})
 }
 
 func TestDeletePassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
-		db.On("Delete", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, validPath)
-		})).Return(nil)
-
-		_, err := store.DeletePassword(&prototypes.DeletePasswordRequest{
-			Url:      testPassword.GetUrl(),
-			Username: testPassword.GetUsername(),
-		})
-		if ok := assert.NoError(t, err); !ok {
-			t.Fatal(err)
-		}
+		db.On("Delete", validPath).Return(nil)
+		require.NoError(t, store.DeletePassword(testPassword.Url, testPassword.Username))
 	})
 
 	t.Run("Invalid call", func(t *testing.T) {
-		db.On("Delete", mock.MatchedBy(func(bz []byte) bool {
-			return bytes.Equal(bz, invalidPath)
-		})).Return(errForcedError)
-
-		_, err := store.DeletePassword(&prototypes.DeletePasswordRequest{
-			Url:      invalidPassword.GetUrl(),
-			Username: invalidPassword.GetUsername(),
-		})
-		if ok := assert.ErrorIs(t, err, errForcedError); !ok {
-			t.Fatalf("expected: %v, got: %v", errForcedError, err)
-		}
+		db.On("Delete", invalidPath).Return(errForcedError)
+		require.ErrorIs(t,
+			store.DeletePassword(invalidPassword.Url, invalidPassword.Username),
+			errForcedError,
+		)
 	})
 }

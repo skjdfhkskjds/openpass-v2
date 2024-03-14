@@ -35,7 +35,7 @@ import (
 type Algorithm interface {
 	SetKey(key *key.Key)
 
-	Encrypt(plainText string) (*password.Password, error)
+	Encrypt(url, username, plainText string) (*password.Password, error)
 	Decrypt(password *password.Password) (string, error)
 }
 

@@ -23,21 +23,19 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package key
+package passwordparams
 
 import (
 	"fmt"
 
-	"github.com/skjdfhkskjds/openpass/v2/types/salt"
+	keyparams "github.com/skjdfhkskjds/openpass/v2/types/key/params"
 )
 
-// Params is a struct that holds the parameters for the
-// key derivation function
 type Params struct {
 	Algorithm string
+	Nonce     []byte
 
-	Salt    salt.Salt
-	KeySize uint32
+	KeyParams *keyparams.Params
 }
 
 type ParamsOption func(*Params)
@@ -53,12 +51,13 @@ func NewParams(opts ...ParamsOption) *Params {
 // TODO: fill this with sensible default values
 // maybe read from an app.toml or yaml or json file
 func DefaultParams() *Params {
-	return &Params{}
+	return &Params{
+		Algorithm: "AES-GCM",
+	}
 }
 
-// TODO: i hate fmt
 func (p *Params) String() string {
-	return fmt.Sprintf("Algorithm: %s, Salt: %s", p.Algorithm, p.Salt)
+	return fmt.Sprintf("Algorithm: %s", p.Algorithm)
 }
 
 func WithAlgorithm(algorithm string) ParamsOption {
@@ -67,14 +66,14 @@ func WithAlgorithm(algorithm string) ParamsOption {
 	}
 }
 
-func WithSalt(s salt.Salt) ParamsOption {
+func WithNonce(nonce []byte) ParamsOption {
 	return func(p *Params) {
-		p.Salt = s
+		p.Nonce = nonce
 	}
 }
 
-func WithKeySize(keySize uint32) ParamsOption {
+func WithKeyParams(kp *keyparams.Params) ParamsOption {
 	return func(p *Params) {
-		p.KeySize = keySize
+		p.KeyParams = kp
 	}
 }
