@@ -28,6 +28,52 @@ package v1;
 
 option go_package = "github.com/skjdfhkskjds/proto";
 
+// UserService is a service for authenticating and managing user state.
+service UserService {
+  // Authenticate returns a token if the user is authenticated.
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
+
+  // CreateUser creates a new user.
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // DeleteUser deletes a user.
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// AuthenticateRequest is a request to authenticate a user.
+message AuthenticateRequest {
+  string username = 1;
+  string password = 2;
+}
+
+// AuthenticateResponse is a response to an AuthenticateRequest
+message AuthenticateResponse {
+  string token = 1;
+  optional string error = 2;
+}
+
+// CreateUserRequest is a request to create a user.
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+}
+
+// CreateUserResponse is a response to a CreateUserRequest
+message CreateUserResponse {
+  string username = 1;
+  optional string error = 2;
+}
+
+// DeleteUserRequest is a request to delete a user.
+message DeleteUserRequest {
+  string username = 1;
+}
+
+// DeleteUserResponse is a response to a DeleteUserRequest
+message DeleteUserResponse {
+  optional string error = 1;
+}
+
 service UserDataService {
   // GetPassword returns the user data for the given user data request.
   rpc GetUserData(GetUserDataRequest) returns (GetUserDataResponse);
