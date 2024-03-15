@@ -36,17 +36,17 @@ import (
 
 var (
 	testPassword = &password.Password{
-		Url:      "url",
+		URL:      "URL",
 		Username: "username",
 	}
 
 	testPassword2 = &password.Password{
-		Url:      "url2",
+		URL:      "URL2",
 		Username: "username2",
 	}
 
 	invalidPassword = &password.Password{
-		Url:      "",
+		URL:      "",
 		Username: "",
 	}
 
@@ -57,15 +57,15 @@ var (
 
 var (
 	validPath = localdb.BuildPasswordKeyPath(
-		testPassword.Url,
+		testPassword.URL,
 		testPassword.Username,
 	)
 	validPath2 = localdb.BuildPasswordKeyPath(
-		testPassword2.Url,
+		testPassword2.URL,
 		testPassword2.Username,
 	)
 	invalidPath = localdb.BuildPasswordKeyPath(
-		invalidPassword.Url,
+		invalidPassword.URL,
 		invalidPassword.Username,
 	)
 )
@@ -74,7 +74,7 @@ func TestGetPassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
 		db.On("Read", validPath).Return(testPasswordBz, nil)
 
-		pswd, err := store.GetPassword(testPassword.Url, testPassword.Username)
+		pswd, err := store.GetPassword(testPassword.URL, testPassword.Username)
 		require.NoError(t, err)
 		require.Equal(t, testPassword, pswd)
 	})
@@ -82,7 +82,7 @@ func TestGetPassword(t *testing.T) {
 	t.Run("Invalid call", func(t *testing.T) {
 		db.On("Read", invalidPath).Return(nil, errForcedError)
 
-		_, err := store.GetPassword(invalidPassword.Url, invalidPassword.Username)
+		_, err := store.GetPassword(invalidPassword.URL, invalidPassword.Username)
 		require.ErrorIs(t, err, errForcedError)
 	})
 }
@@ -105,7 +105,7 @@ func TestUpdatePassword(t *testing.T) {
 		db.On("Write", validPath2, testPassword2Bz).Return(nil)
 
 		require.NoError(t,
-			store.UpdatePassword(testPassword.Url, testPassword.Username, testPassword2),
+			store.UpdatePassword(testPassword.URL, testPassword.Username, testPassword2),
 		)
 	})
 
@@ -117,11 +117,11 @@ func TestUpdatePassword(t *testing.T) {
 		db.On("Write", invalidPath, invalidPasswordBz).Return(errForcedError)
 
 		// Test with invalid old password
-		err := store.UpdatePassword(invalidPassword.Url, invalidPassword.Username, testPassword2)
+		err := store.UpdatePassword(invalidPassword.URL, invalidPassword.Username, testPassword2)
 		require.ErrorIs(t, err, errForcedError)
 
 		// Test with invalid updated password
-		err = store.UpdatePassword(testPassword.Url, testPassword.Username, invalidPassword)
+		err = store.UpdatePassword(testPassword.URL, testPassword.Username, invalidPassword)
 		require.ErrorIs(t, err, errForcedError)
 	})
 }
@@ -129,13 +129,13 @@ func TestUpdatePassword(t *testing.T) {
 func TestDeletePassword(t *testing.T) {
 	t.Run("Valid call", func(t *testing.T) {
 		db.On("Delete", validPath).Return(nil)
-		require.NoError(t, store.DeletePassword(testPassword.Url, testPassword.Username))
+		require.NoError(t, store.DeletePassword(testPassword.URL, testPassword.Username))
 	})
 
 	t.Run("Invalid call", func(t *testing.T) {
 		db.On("Delete", invalidPath).Return(errForcedError)
 		require.ErrorIs(t,
-			store.DeletePassword(invalidPassword.Url, invalidPassword.Username),
+			store.DeletePassword(invalidPassword.URL, invalidPassword.Username),
 			errForcedError,
 		)
 	})

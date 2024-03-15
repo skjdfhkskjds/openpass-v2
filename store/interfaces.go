@@ -39,8 +39,8 @@ type Store interface {
 	SetUserData(data *user.Data) error
 
 	// For password data
-	GetPassword(url, username string) (*password.Password, error)
+	GetPassword(URL, username string) (*password.Password, error)
 	SetPassword(pswd *password.Password) error
-	UpdatePassword(oldUrl, oldUsername string, pswd *password.Password) error
-	DeletePassword(url, username string) error
+	UpdatePassword(oldURL, oldUsername string, pswd *password.Password) error
+	DeletePassword(URL, username string) error
 }

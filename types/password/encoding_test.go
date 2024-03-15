@@ -23,39 +23,48 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package keyparams
+package password
 
 import (
 	"bytes"
 	"encoding/gob"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func NewFromBytes(b []byte) (*Params, error) {
-	buffer := bytes.NewBuffer(b)
-	decoder := gob.NewDecoder(buffer)
-	var p Params
-	if err := decoder.Decode(&p); err != nil {
-		return nil, err
+var (
+	testPassword = &Password{
+		URL:      "URL",
+		Username: "username",
 	}
 
-	return &p, nil
-}
+	buffer bytes.Buffer
+)
 
-func (p *Params) Bytes() ([]byte, error) {
-	var buffer bytes.Buffer
+func TestNewFromBytes(t *testing.T) {
 	encoder := gob.NewEncoder(&buffer)
-	if err := encoder.Encode(p); err != nil {
-		return nil, err
-	}
+	require.NoError(t, encoder.Encode(testPassword))
 
-	return buffer.Bytes(), nil
+	pswd, err := NewFromBytes(buffer.Bytes())
+	require.NoError(t, err)
+	require.Equal(t, testPassword, pswd)
 }
 
-func (p *Params) BytesUnsafe() []byte {
-	bz, err := p.Bytes()
-	if err != nil {
-		panic(err)
-	}
+func TestPasswordToBytes(t *testing.T) {
+	encoder := gob.NewEncoder(&buffer)
+	require.NoError(t, encoder.Encode(testPassword))
 
-	return bz
+	bz, err := testPassword.Bytes()
+	require.NoError(t, err)
+	require.Equal(t, buffer.Bytes(), bz)
+}
+
+func TestPasswordToBytesUnsafe(t *testing.T) {
+	encoder := gob.NewEncoder(&buffer)
+	require.NoError(t, encoder.Encode(testPassword))
+
+	bz, err := testPassword.Bytes()
+	require.NoError(t, err)
+	require.Equal(t, buffer.Bytes(), bz)
 }

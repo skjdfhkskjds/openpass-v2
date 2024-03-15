@@ -48,15 +48,15 @@ func (s *Store) SetPassword(pswd *password.Password) error {
 	}
 
 	return s.db.Write(
-		localdb.BuildPasswordKeyPath(pswd.Url, pswd.Username),
+		localdb.BuildPasswordKeyPath(pswd.URL, pswd.Username),
 		pswdBz,
 	)
 }
 
-// UpdatePassword updates the password for the given url and username.
+// UpdatePassword updates the password for the given URL and username.
 // It performs a delete operation followed by a set operation.
-func (s *Store) UpdatePassword(oldUrl, oldUsername string, pswd *password.Password) error {
-	if err := s.DeletePassword(oldUrl, oldUsername); err != nil {
+func (s *Store) UpdatePassword(oldURL, oldUsername string, pswd *password.Password) error {
+	if err := s.DeletePassword(oldURL, oldUsername); err != nil {
 		return err
 	}
 

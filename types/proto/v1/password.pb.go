@@ -51,7 +51,7 @@ type PasswordEntry struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The URL of the website
-	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	URL string `protobuf:"bytes,1,opt,name=URL,proto3" json:"URL,omitempty"`
 	// The username used to log in
 	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// The password is stored as a hash
@@ -96,9 +96,9 @@ func (*PasswordEntry) Descriptor() ([]byte, []int) {
 	return file_proto_v1_password_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PasswordEntry) GetUrl() string {
+func (x *PasswordEntry) GetURL() string {
 	if x != nil {
-		return x.Url
+		return x.URL
 	}
 	return ""
 }
@@ -241,7 +241,7 @@ type GetPasswordRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Url      string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	URL      string `protobuf:"bytes,2,opt,name=URL,proto3" json:"URL,omitempty"`
 }
 
 func (x *GetPasswordRequest) Reset() {
@@ -283,9 +283,9 @@ func (x *GetPasswordRequest) GetUsername() string {
 	return ""
 }
 
-func (x *GetPasswordRequest) GetUrl() string {
+func (x *GetPasswordRequest) GetURL() string {
 	if x != nil {
-		return x.Url
+		return x.URL
 	}
 	return ""
 }
@@ -345,7 +345,7 @@ type UpdatePasswordRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	OldUsername string         `protobuf:"bytes,1,opt,name=old_username,json=oldUsername,proto3" json:"old_username,omitempty"`
-	OldUrl      string         `protobuf:"bytes,2,opt,name=old_url,json=oldUrl,proto3" json:"old_url,omitempty"`
+	oldURL      string         `protobuf:"bytes,2,opt,name=old_URL,json=oldURL,proto3" json:"old_URL,omitempty"`
 	Password    *PasswordEntry `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 }
 
@@ -388,9 +388,9 @@ func (x *UpdatePasswordRequest) GetOldUsername() string {
 	return ""
 }
 
-func (x *UpdatePasswordRequest) GetOldUrl() string {
+func (x *UpdatePasswordRequest) GetoldURL() string {
 	if x != nil {
-		return x.OldUrl
+		return x.oldURL
 	}
 	return ""
 }
@@ -457,7 +457,7 @@ type DeletePasswordRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Url      string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	URL      string `protobuf:"bytes,2,opt,name=URL,proto3" json:"URL,omitempty"`
 }
 
 func (x *DeletePasswordRequest) Reset() {
@@ -499,9 +499,9 @@ func (x *DeletePasswordRequest) GetUsername() string {
 	return ""
 }
 
-func (x *DeletePasswordRequest) GetUrl() string {
+func (x *DeletePasswordRequest) GetURL() string {
 	if x != nil {
-		return x.Url
+		return x.URL
 	}
 	return ""
 }

@@ -34,7 +34,7 @@ import (
 type Password struct {
 	Hash []byte
 
-	Url      string
+	URL      string
 	Username string
 
 	Params *passwordparams.Params
@@ -43,7 +43,7 @@ type Password struct {
 func New(hash []byte, url, username string, params *passwordparams.Params) *Password {
 	return &Password{
 		Hash:     hash,
-		Url:      url,
+		URL:      url,
 		Username: username,
 		Params:   params,
 	}

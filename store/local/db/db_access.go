@@ -57,7 +57,7 @@ func (db *LocalDB) Read(key []byte) ([]byte, error) {
 
 // write performs a write operation on the db.
 // It returns an error if the key already exists in the db.
-func (db *LocalDB) Write(key []byte, value []byte) error {
+func (db *LocalDB) Write(key, value []byte) error {
 	return db.badgerDB.Update(func(txn *badger.Txn) error {
 		_, err := txn.Get(key)
 		// If key is already in the db, return an error
@@ -82,4 +82,3 @@ func (db *LocalDB) Delete(key []byte) error {
 		return txn.Delete(key)
 	})
 }
-
