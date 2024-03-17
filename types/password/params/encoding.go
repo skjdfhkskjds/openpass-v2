@@ -23,26 +23,39 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package crypto
+package passwordparams
 
 import (
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	"bytes"
+	"encoding/gob"
 )
 
-// Algorithm is an interface for encryption and decryption
-// of a password.
-type Algorithm interface {
-	SetKey(key *key.Key)
+func NewFromBytes(b []byte) (*Params, error) {
+	buffer := bytes.NewBuffer(b)
+	decoder := gob.NewDecoder(buffer)
+	var p Params
+	if err := decoder.Decode(&p); err != nil {
+		return nil, err
+	}
 
-	Encrypt(URL, username, plainText string) (*password.Password, error)
-	Decrypt(password *password.Password) (string, error)
+	return &p, nil
 }
 
-// KeyDerivationFunction is an interface for deriving a key
-// from a master password.
-// This key is used as a standard length key for encryption
-// and decryption by the Algorithm interface.
-type KeyDerivationFunction interface {
-	DeriveKey(password string) (*key.Key, error)
+func (p *Params) Bytes() ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	if err := encoder.Encode(p); err != nil {
+		return nil, err
+	}
+
+	return buffer.Bytes(), nil
+}
+
+func (p *Params) BytesUnsafe() []byte {
+	bz, err := p.Bytes()
+	if err != nil {
+		panic(err)
+	}
+
+	return bz
 }

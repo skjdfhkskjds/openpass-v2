@@ -25,19 +25,26 @@
 
 package password
 
+import (
+	passwordparams "github.com/skjdfhkskjds/openpass/v2/types/password/params"
+)
+
 // Password is a struct that holds the encrypted password
 // and the relevant parameters used to encrypt it.
 type Password struct {
-	Hash  []byte
-	Nonce []byte
+	Hash []byte
 
-	Params *Params
+	URL      string
+	Username string
+
+	Params *passwordparams.Params
 }
 
-func New(hash, nonce []byte, params *Params) *Password {
+func New(hash []byte, url, username string, params *passwordparams.Params) *Password {
 	return &Password{
-		Hash:   hash,
-		Nonce:  nonce,
-		Params: params,
+		Hash:     hash,
+		URL:      url,
+		Username: username,
+		Params:   params,
 	}
 }

@@ -60,7 +60,7 @@ func (k *Keychain) SetPassword(url, username, plainText string) (*password.Passw
 	}
 
 	k.algorithm.SetKey(key)
-	encrypted, err := k.algorithm.Encrypt(plainText)
+	encrypted, err := k.algorithm.Encrypt(url, username, plainText)
 	if err != nil {
 		return nil, err
 	}

@@ -27,15 +27,13 @@ package localdb
 
 import (
 	badger "github.com/dgraph-io/badger/v4"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 //go:generate mockery --name DB
 type DB interface {
 	Read(key []byte) ([]byte, error)
-	Write(key []byte, message protoreflect.ProtoMessage) error
+	Write(key []byte, value []byte) error
 	Delete(key []byte) error
-	Update(key []byte, message protoreflect.ProtoMessage) error
 	Close() error
 }
 

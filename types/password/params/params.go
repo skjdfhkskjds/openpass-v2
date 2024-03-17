@@ -23,26 +23,57 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package crypto
+package passwordparams
 
 import (
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	"fmt"
+
+	keyparams "github.com/skjdfhkskjds/openpass/v2/types/key/params"
 )
 
-// Algorithm is an interface for encryption and decryption
-// of a password.
-type Algorithm interface {
-	SetKey(key *key.Key)
+type Params struct {
+	Algorithm string
+	Nonce     []byte
 
-	Encrypt(URL, username, plainText string) (*password.Password, error)
-	Decrypt(password *password.Password) (string, error)
+	KeyParams *keyparams.Params
 }
 
-// KeyDerivationFunction is an interface for deriving a key
-// from a master password.
-// This key is used as a standard length key for encryption
-// and decryption by the Algorithm interface.
-type KeyDerivationFunction interface {
-	DeriveKey(password string) (*key.Key, error)
+type ParamsOption func(*Params)
+
+func NewParams(opts ...ParamsOption) *Params {
+	params := DefaultParams()
+	for _, opt := range opts {
+		opt(params)
+	}
+	return params
+}
+
+// TODO: fill this with sensible default values
+// maybe read from an app.toml or yaml or json file
+func DefaultParams() *Params {
+	return &Params{
+		Algorithm: "AES-GCM",
+	}
+}
+
+func (p *Params) String() string {
+	return fmt.Sprintf("Algorithm: %s", p.Algorithm)
+}
+
+func WithAlgorithm(algorithm string) ParamsOption {
+	return func(p *Params) {
+		p.Algorithm = algorithm
+	}
+}
+
+func WithNonce(nonce []byte) ParamsOption {
+	return func(p *Params) {
+		p.Nonce = nonce
+	}
+}
+
+func WithKeyParams(kp *keyparams.Params) ParamsOption {
+	return func(p *Params) {
+		p.KeyParams = kp
+	}
 }

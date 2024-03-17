@@ -27,11 +27,8 @@ package localdb
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/dgraph-io/badger/v4"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/skjdfhkskjds/openpass/v2/store"
 )
@@ -60,7 +57,7 @@ func (db *LocalDB) Read(key []byte) ([]byte, error) {
 
 // write performs a write operation on the db.
 // It returns an error if the key already exists in the db.
-func (db *LocalDB) Write(key []byte, message protoreflect.ProtoMessage) error {
+func (db *LocalDB) Write(key, value []byte) error {
 	return db.badgerDB.Update(func(txn *badger.Txn) error {
 		_, err := txn.Get(key)
 		// If key is already in the db, return an error
@@ -70,17 +67,10 @@ func (db *LocalDB) Write(key []byte, message protoreflect.ProtoMessage) error {
 			return err
 		}
 
-		fmt.Println("got here")
-		bz, err := proto.Marshal(message)
+		err = txn.Set(key, value)
 		if err != nil {
 			return err
 		}
-
-		err = txn.Set(key, bz)
-		if err != nil {
-			return err
-		}
-		fmt.Println("exit")
 		return nil
 	})
 }
@@ -90,29 +80,5 @@ func (db *LocalDB) Write(key []byte, message protoreflect.ProtoMessage) error {
 func (db *LocalDB) Delete(key []byte) error {
 	return db.badgerDB.Update(func(txn *badger.Txn) error {
 		return txn.Delete(key)
-	})
-}
-
-// update performs an update operation on the db.
-// It returns an error if the key does not exist in the db.
-func (db *LocalDB) Update(key []byte, message protoreflect.ProtoMessage) error {
-	return db.badgerDB.Update(func(txn *badger.Txn) error {
-		_, err := txn.Get(key)
-		if errors.Is(err, badger.ErrKeyNotFound) {
-			return store.ErrKeyNotFound
-		} else if err != nil {
-			return err
-		}
-
-		bz, err := proto.Marshal(message)
-		if err != nil {
-			return err
-		}
-
-		err = txn.Set(key, bz)
-		if err != nil {
-			return err
-		}
-		return nil
 	})
 }
