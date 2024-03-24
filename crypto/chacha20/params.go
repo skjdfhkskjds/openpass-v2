@@ -27,12 +27,12 @@ package chacha20
 
 import (
 	"github.com/skjdfhkskjds/openpass/v2/types/key"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	passwordparams "github.com/skjdfhkskjds/openpass/v2/types/password/params"
 )
 
-func DefaultChaCha2ParamsWithKey(k *key.Key) *password.Params {
-	return password.NewParams(
-		password.WithAlgorithm(algorithmName),
-		password.WithKey(k),
+func DefaultChaCha2ParamsWithKey(k *key.Key) *passwordparams.Params {
+	return passwordparams.NewParams(
+		passwordparams.WithAlgorithm(algorithmName),
+		passwordparams.WithKeyParams(k.Params),
 	)
 }

@@ -110,14 +110,14 @@ generate:
 #    mockery    #
 #################
 
-mockery-install:
-	@echo "--> Installing mockery"
-	@go install github.com/vektra/mockery/v2@v2.42.0
-
 mockery:
 	@$(MAKE) mockery-install
 	@echo "Running mockery..."
 	@mockery
+
+mockery-install:
+	@echo "--> Installing mockery"
+	@go install github.com/vektra/mockery/v2@v2.42.0
 
 #################
 #     proto     #

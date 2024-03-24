@@ -31,6 +31,7 @@ import (
 	"github.com/skjdfhkskjds/openpass/v2/crypto"
 	"github.com/skjdfhkskjds/openpass/v2/types/key"
 	"github.com/skjdfhkskjds/openpass/v2/types/password"
+	passwordparams "github.com/skjdfhkskjds/openpass/v2/types/password/params"
 )
 
 // Compile time interface assertion.
@@ -41,7 +42,7 @@ var _ crypto.Algorithm = (*Algorithm)(nil)
 type Algorithm struct {
 	key *key.Key
 
-	params *password.Params
+	params *passwordparams.Params
 }
 
 func New(k *key.Key) *Algorithm {
@@ -55,7 +56,7 @@ func (a *Algorithm) SetKey(k *key.Key) {
 	a.key = k
 }
 
-func (a *Algorithm) Encrypt(plainText string) (*password.Password, error) {
+func (a *Algorithm) Encrypt(url, username, plainText string) (*password.Password, error) {
 	aead, err := chacha20poly1305.NewX(a.key.Hash[:])
 	if err != nil {
 		return nil, err
@@ -67,10 +68,10 @@ func (a *Algorithm) Encrypt(plainText string) (*password.Password, error) {
 	// TODO: fill password parameters
 	return password.New(
 		encryptedHash,
-		nonce,
-		password.NewParams(
-			password.WithAlgorithm(algorithmName),
-			password.WithKey(a.key),
+		url, username,
+		passwordparams.NewParams(
+			passwordparams.WithAlgorithm(algorithmName),
+			passwordparams.WithKeyParams(a.key.Params),
 		),
 	), nil
 }
@@ -81,7 +82,7 @@ func (a *Algorithm) Decrypt(pswd *password.Password) (string, error) {
 		return "", err
 	}
 
-	decryptedPassword, err := aead.Open(nil, pswd.Nonce, pswd.Hash, nil)
+	decryptedPassword, err := aead.Open(nil, pswd.Params.Nonce, pswd.Hash, nil)
 	if err != nil {
 		return "", err
 	}

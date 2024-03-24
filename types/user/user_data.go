@@ -23,26 +23,19 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package crypto
+package user
 
-import (
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
-	"github.com/skjdfhkskjds/openpass/v2/types/password"
-)
+import "github.com/skjdfhkskjds/openpass/v2/types/key"
 
-// Algorithm is an interface for encryption and decryption
-// of a password.
-type Algorithm interface {
-	SetKey(key *key.Key)
+type Data struct {
+	Username string
 
-	Encrypt(URL, username, plainText string) (*password.Password, error)
-	Decrypt(password *password.Password) (string, error)
+	Key *key.Key
 }
 
-// KeyDerivationFunction is an interface for deriving a key
-// from a master password.
-// This key is used as a standard length key for encryption
-// and decryption by the Algorithm interface.
-type KeyDerivationFunction interface {
-	DeriveKey(password string) (*key.Key, error)
+func New(username string, k *key.Key) *Data {
+	return &Data{
+		Username: username,
+		Key:      k,
+	}
 }

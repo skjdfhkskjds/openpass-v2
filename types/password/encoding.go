@@ -26,45 +26,36 @@
 package password
 
 import (
-	"fmt"
-
-	"github.com/skjdfhkskjds/openpass/v2/types/key"
+	"bytes"
+	"encoding/gob"
 )
 
-type Params struct {
-	Algorithm string
-
-	Key *key.Key
-}
-
-type ParamsOption func(*Params)
-
-func NewParams(opts ...ParamsOption) *Params {
-	params := DefaultParams()
-	for _, opt := range opts {
-		opt(params)
+func NewFromBytes(b []byte) (*Password, error) {
+	buffer := bytes.NewBuffer(b)
+	decoder := gob.NewDecoder(buffer)
+	var p Password
+	if err := decoder.Decode(&p); err != nil {
+		return nil, err
 	}
-	return params
+
+	return &p, nil
 }
 
-// TODO: fill this with sensible default values
-// maybe read from an app.toml or yaml or json file
-func DefaultParams() *Params {
-	return &Params{}
-}
-
-func (p *Params) String() string {
-	return fmt.Sprintf("Algorithm: %s", p.Algorithm)
-}
-
-func WithAlgorithm(algorithm string) ParamsOption {
-	return func(p *Params) {
-		p.Algorithm = algorithm
+func (p *Password) Bytes() ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	if err := encoder.Encode(p); err != nil {
+		return nil, err
 	}
+
+	return buffer.Bytes(), nil
 }
 
-func WithKey(k *key.Key) ParamsOption {
-	return func(p *Params) {
-		p.Key = k
+func (p *Password) BytesUnsafe() []byte {
+	bz, err := p.Bytes()
+	if err != nil {
+		panic(err)
 	}
+
+	return bz
 }

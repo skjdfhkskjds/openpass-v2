@@ -23,58 +23,39 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-package key
+package keyparams
 
 import (
-	"fmt"
-
-	"github.com/skjdfhkskjds/openpass/v2/types/salt"
+	"bytes"
+	"encoding/gob"
 )
 
-// Params is a struct that holds the parameters for the
-// key derivation function
-type Params struct {
-	Algorithm string
-
-	Salt    salt.Salt
-	KeySize uint32
-}
-
-type ParamsOption func(*Params)
-
-func NewParams(opts ...ParamsOption) *Params {
-	params := DefaultParams()
-	for _, opt := range opts {
-		opt(params)
+func NewFromBytes(b []byte) (*Params, error) {
+	buffer := bytes.NewBuffer(b)
+	decoder := gob.NewDecoder(buffer)
+	var p Params
+	if err := decoder.Decode(&p); err != nil {
+		return nil, err
 	}
-	return params
+
+	return &p, nil
 }
 
-// TODO: fill this with sensible default values
-// maybe read from an app.toml or yaml or json file
-func DefaultParams() *Params {
-	return &Params{}
-}
-
-// TODO: i hate fmt
-func (p *Params) String() string {
-	return fmt.Sprintf("Algorithm: %s, Salt: %s", p.Algorithm, p.Salt)
-}
-
-func WithAlgorithm(algorithm string) ParamsOption {
-	return func(p *Params) {
-		p.Algorithm = algorithm
+func (p *Params) Bytes() ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	if err := encoder.Encode(p); err != nil {
+		return nil, err
 	}
+
+	return buffer.Bytes(), nil
 }
 
-func WithSalt(s salt.Salt) ParamsOption {
-	return func(p *Params) {
-		p.Salt = s
+func (p *Params) BytesUnsafe() []byte {
+	bz, err := p.Bytes()
+	if err != nil {
+		panic(err)
 	}
-}
 
-func WithKeySize(keySize uint32) ParamsOption {
-	return func(p *Params) {
-		p.KeySize = keySize
-	}
+	return bz
 }

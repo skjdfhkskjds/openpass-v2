@@ -25,15 +25,19 @@
 
 package key
 
+import (
+	keyparams "github.com/skjdfhkskjds/openpass/v2/types/key/params"
+)
+
 // Key is a encoding key used to encrypt and decrypt data.
 // It needs to be saved and stored to be able to decrypt data.
 type Key struct {
 	Hash [Size]byte
 
-	Params *Params
+	Params *keyparams.Params
 }
 
-func New(hash [Size]byte, params *Params) *Key {
+func New(hash [Size]byte, params *keyparams.Params) *Key {
 	return &Key{
 		Hash:   hash,
 		Params: params,

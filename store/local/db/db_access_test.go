@@ -33,13 +33,10 @@ import (
 	"testing"
 
 	"github.com/dgraph-io/badger/v4"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
+	"github.com/stretchr/testify/require"
 
 	"github.com/skjdfhkskjds/openpass/v2/store"
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
 )
 
 type test struct {
@@ -55,21 +52,15 @@ type test struct {
 type preRunFunc func(*badger.DB) error
 type postRunFunc func(*badger.DB) ([]byte, error)
 
-var (
-	testMessage = &prototypes.UserData{
-		Username: "testValue",
-	}
-	testMessage2 = &prototypes.UserData{
-		Username: "testValue2",
-	}
+const (
+	testMessage = "testValue"
 )
 
 var (
-	testKey       = []byte("testKey")
-	testValue, _  = proto.Marshal(testMessage)
-	testValue2, _ = proto.Marshal(testMessage2)
-
+	testKey         = []byte("testKey")
 	doesNotExistKey = []byte("doesNotExist")
+
+	testValue = []byte(testMessage)
 )
 
 var (
@@ -162,38 +153,6 @@ var (
 			error: nil,
 		},
 	}
-
-	updateTests = []test{
-		{
-			name:  "updateSuccess",
-			key:   testKey,
-			value: testValue2,
-			preRunFunc: func(db *badger.DB) error {
-				return db.Update(func(txn *badger.Txn) error {
-					return txn.Set(testKey, testValue)
-				})
-			},
-			postRunFunc: func(db *badger.DB) ([]byte, error) {
-				var val []byte
-				err := db.View(func(txn *badger.Txn) error {
-					item, err := txn.Get(testKey)
-					if err != nil {
-						return err
-					}
-					return item.Value(func(v []byte) error {
-						val = v
-						return nil
-					})
-				})
-				return val, err
-			},
-		},
-		{
-			name:  "updateFailKeyDoesNotExist",
-			key:   doesNotExistKey,
-			error: store.ErrKeyNotFound,
-		},
-	}
 )
 
 func createTestDirAndDB(dbSetupFunc preRunFunc) (*localdb.LocalDB, string, error) {
@@ -248,20 +207,11 @@ func verifyDBContents(dir string, expected []byte, postFunc postRunFunc) error {
 func TestRead(t *testing.T) {
 	for _, tt := range readTests {
 		db, dir, err := createTestDirAndDB(tt.preRunFunc)
-		if ok := assert.NoError(t, err); !ok {
-			t.Fatal(err)
-		}
+		require.NoError(t, err)
 		t.Run(tt.name, func(t *testing.T) {
 			data, err := db.Read(tt.key)
-			if ok := assert.ErrorIs(t, err, tt.error); !ok {
-				t.Fatalf("test %s: expected error %s, got %s", tt.name, tt.error, err)
-			}
-			if ok := assert.Equal(t, tt.value, data); !ok {
-				t.Fatalf(
-					"test %s: expected value %s, got %s",
-					tt.name, string(tt.value), string(data),
-				)
-			}
+			require.ErrorIs(t, err, tt.error)
+			require.Equal(t, tt.value, data)
 			os.RemoveAll(dir)
 		})
 	}
@@ -271,23 +221,12 @@ func TestWrite(t *testing.T) {
 	for _, tt := range writeTests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, dir, err := createTestDirAndDB(tt.preRunFunc)
-			if ok := assert.NoError(t, err); !ok {
-				t.Fatal(err)
-			}
-			var message protoreflect.ProtoMessage
-			if tt.value != nil {
-				message = testMessage
-			}
-			err = db.Write(tt.key, message)
-			if ok := assert.ErrorIs(t, err, tt.error); !ok {
-				t.Fatalf("test %s: expected error %s, got %s", tt.name, tt.error, err)
-			}
-
+			require.NoError(t, err)
+			require.ErrorIs(t, db.Write(tt.key, tt.value), tt.error)
 			db.Close()
+
 			// Check if the key-value pair was written
-			if ok := assert.NoError(t, verifyDBContents(dir, tt.value, tt.postRunFunc)); !ok {
-				t.Fatalf("test %s: expected no error, got %s", tt.name, err)
-			}
+			require.NoError(t, verifyDBContents(dir, tt.value, tt.postRunFunc))
 			os.RemoveAll(dir)
 		})
 	}
@@ -297,50 +236,15 @@ func TestDelete(t *testing.T) {
 	for _, tt := range deleteTests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, dir, err := createTestDirAndDB(tt.preRunFunc)
-			if ok := assert.NoError(t, err); !ok {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 			err = db.Delete(tt.key)
 			if err != nil && !errors.Is(err, tt.error) {
 				t.Fatalf("test %s: expected err %s, got %s", tt.name, tt.error, err)
 			}
-
 			db.Close()
+
 			// Check if the key-value pair was deleted
-			if ok := assert.NoError(t, verifyDBContents(dir, nil, tt.postRunFunc)); !ok {
-				t.Fatalf("test %s: expected no error, got %s", tt.name, err)
-			}
-			os.RemoveAll(dir)
-		})
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	for _, tt := range updateTests {
-		t.Run(tt.name, func(t *testing.T) {
-			db, dir, err := createTestDirAndDB(tt.preRunFunc)
-			if ok := assert.NoError(t, err); !ok {
-				t.Fatal(err)
-			}
-
-			var message *prototypes.UserData
-			var expected []byte
-			if tt.value != nil {
-				message = testMessage2
-				expected = testValue2
-			}
-			err = db.Update(tt.key, message)
-			if tt.error != nil && err != nil && errors.Is(err, tt.error) {
-				return
-			} else if err != nil {
-				t.Fatalf("test %s: expected err %s, got %s", tt.name, tt.error, err)
-			}
-
-			db.Close()
-			// Check if the key-value pair was deleted
-			if ok := assert.NoError(t, verifyDBContents(dir, expected, tt.postRunFunc)); !ok {
-				t.Fatalf("test %s: expected no error, got %s", tt.name, err)
-			}
+			require.NoError(t, verifyDBContents(dir, nil, tt.postRunFunc))
 			os.RemoveAll(dir)
 		})
 	}

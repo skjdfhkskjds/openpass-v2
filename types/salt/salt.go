@@ -25,7 +25,11 @@
 
 package salt
 
-import "crypto/rand"
+import (
+	"bytes"
+	"crypto/rand"
+	"encoding/gob"
+)
 
 // A Salt is a random value used to increase the security of
 // a hash.
@@ -43,4 +47,34 @@ func New() (Salt, error) {
 	}
 
 	return salt, nil
+}
+
+func NewFromBytes(b []byte) (*Salt, error) {
+	buffer := bytes.NewBuffer(b)
+	decoder := gob.NewDecoder(buffer)
+	var s Salt
+	if err := decoder.Decode(&s); err != nil {
+		return nil, err
+	}
+
+	return &s, nil
+}
+
+func (s *Salt) Bytes() ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	if err := encoder.Encode(s); err != nil {
+		return nil, err
+	}
+
+	return buffer.Bytes(), nil
+}
+
+func (s *Salt) BytesUnsafe() []byte {
+	bz, err := s.Bytes()
+	if err != nil {
+		panic(err)
+	}
+
+	return bz
 }

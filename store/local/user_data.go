@@ -26,44 +26,29 @@
 package localstore
 
 import (
-	"google.golang.org/protobuf/proto"
-
 	localdb "github.com/skjdfhkskjds/openpass/v2/store/local/db"
-	prototypes "github.com/skjdfhkskjds/openpass/v2/types/proto/v1"
+	"github.com/skjdfhkskjds/openpass/v2/types/user"
 )
 
-func (s *Store) GetUserData(
-	req *prototypes.GetUserDataRequest,
-) (*prototypes.GetUserDataResponse, error) {
+func (s *Store) GetUserData(username string) (*user.Data, error) {
 	bz, err := s.db.Read(
-		localdb.BuildUserDataKeyPath(req.GetUsername()),
+		localdb.BuildUserDataKeyPath(username),
 	)
 	if err != nil {
-		return &prototypes.GetUserDataResponse{}, err
-	}
-
-	// Unmarshal the returned bytes into a data entry
-	data := &prototypes.UserData{}
-	if err := proto.Unmarshal(bz, data); err != nil {
 		return nil, err
 	}
 
-	// Build the response
-	return &prototypes.GetUserDataResponse{
-		UserData: data,
-	}, nil
+	return user.NewFromBytes(bz)
 }
 
-func (s *Store) SetUserData(
-	req *prototypes.SetUserDataRequest,
-) (*prototypes.SetUserDataResponse, error) {
-	if err := s.db.Write(
-		localdb.BuildUserDataKeyPath(req.UserData.GetUsername()),
-		req.UserData,
-	); err != nil {
-		return &prototypes.SetUserDataResponse{}, err
+func (s *Store) SetUserData(userData *user.Data) error {
+	userDataBz, err := userData.Bytes()
+	if err != nil {
+		return err
 	}
-	return &prototypes.SetUserDataResponse{
-		UserData: req.UserData,
-	}, nil
+
+	return s.db.Write(
+		localdb.BuildUserDataKeyPath(userData.Username),
+		userDataBz,
+	)
 }

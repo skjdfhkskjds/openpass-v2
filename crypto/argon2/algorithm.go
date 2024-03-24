@@ -30,16 +30,17 @@ import (
 
 	"github.com/skjdfhkskjds/openpass/v2/crypto"
 	"github.com/skjdfhkskjds/openpass/v2/types/key"
+	keyparams "github.com/skjdfhkskjds/openpass/v2/types/key/params"
 )
 
 // Compile time interface assertion.
 var _ crypto.KeyDerivationFunction = (*Algorithm)(nil)
 
 type Algorithm struct {
-	*key.Params
+	*keyparams.Params
 }
 
-func New(params *key.Params) *Algorithm {
+func New(params *keyparams.Params) *Algorithm {
 	return &Algorithm{
 		Params: params,
 	}
