@@ -19,3 +19,6 @@ go.work
 
 # tmp directory
 tmp
+
+# IDE files
+.idea

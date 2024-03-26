@@ -26,8 +26,8 @@
 package generator
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
+	"math/big"
 )
 
 type Generator struct {
@@ -45,25 +45,66 @@ func NewDefault() *Generator {
 }
 
 // Generate returns a randomly generated password based on the configuration
-func (g *Generator) Generate() string {
-	var chars string
-	chars += lowercaseLetters
+func (g *Generator) Generate() (string, error) {
+	var charset string
+	var password []byte
+
+	// get selected options from config
+	var options = g.getPassOptions()
+	for _, option := range options {
+		charset += option
+	}
+
+	// Ensure password contains at least one char from each option
+	for _, option := range options {
+		pos, err := rand.Int(rand.Reader, big.NewInt(int64(len(option))))
+		if err != nil {
+			return "", err
+		}
+		password = append(password, option[pos.Int64()])
+	}
+	// fill up rest of password
+	for len(password) < g.length {
+		pos, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			return "", err
+		}
+		password = append(password, charset[pos.Int64()])
+	}
+	password = password[:g.length] // trim in case desired length < # chosen options
+
+	err := g.shufflePass(password)
+	if err != nil {
+		return "", err
+	}
+	return string(password), nil
+}
+
+// getPassOptions returns the selected charsets based on the configuration
+func (g *Generator) getPassOptions() []string {
+	var options []string
+	options = append(options, lowercaseLetters)
 	if g.includeUppercase {
-		chars += uppercaseLetters
+		options = append(options, uppercaseLetters)
 	}
 	if g.includeSpecial {
-		chars += specialChars
+		options = append(options, specialChars)
 	}
 	if g.includeNumbers {
-		chars += numbers
+		options = append(options, numbers)
 	}
+	return options
+}
 
-	// Seed the random number generator
-	rand.New(rand.NewSource(time.Now().UnixNano())) //nolint: gosec // eh, it's a password generator
-
-	password := make([]byte, g.length)
-	for i := 0; i < g.length; i++ {
-		password[i] = chars[rand.Intn(len(chars))] //nolint: gosec // eh, it's a password generator
+// shufflePass mutates <password> into an unbiased permutation of itself using the Fisher-Yates algorithm
+func (g *Generator) shufflePass(password []byte) error {
+	for i := range password {
+		jBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(password)-i)))
+		if err != nil {
+			return err
+		}
+		j := int(jBig.Int64()) + i
+		password[i], password[j] = password[j], password[i]
 	}
-	return string(password)
+	return nil
 }
